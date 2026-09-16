@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0f1117">
+<title>Lista de precios</title>
+<style>
+:root{
+  --bg:#0f1117; --bg2:#161922; --card:#1b1f2b; --card2:#232838;
+  --fg:#e8ebf2; --dim:#98a1b5; --dim2:#6c7488;
+  --line:#2a2f40; --acc:#4f9cf9; --acc2:#7c5cff;
+  --ok:#31d68f; --warn:#ffb347; --bad:#ff6b6b;
+  --radius:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--fg);
+  font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
+  padding-bottom:40px;
+}
+a{color:var(--acc)}
+
+/* ---------- header ---------- */
+header{
+  position:sticky; top:0; z-index:20;
+  background:rgba(15,17,23,.92); backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+  padding:10px 14px 8px;
+}
+.hrow{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+h1{font-size:19px;margin:0;letter-spacing:-.3px}
+.sub{font-size:12px;color:var(--dim2);margin-left:auto;text-align:right;line-height:1.25}
+
+.search{position:relative;margin-top:9px}
+.search input{
+  width:100%; padding:12px 38px 12px 38px; font-size:16px;
+  background:var(--card); border:1px solid var(--line); color:var(--fg);
+  border-radius:12px; outline:none;
+}
+.search input:focus{border-color:var(--acc)}
+.search .ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--dim2);font-size:15px}
+.search .clr{
+  position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  background:none;border:0;color:var(--dim2);font-size:19px;cursor:pointer;padding:4px 8px;display:none
+}
+
+.filters{display:flex;gap:6px;margin-top:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+select{
+  appearance:none; background:var(--card) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%2398a1b5'/></svg>") no-repeat right 10px center;
+  border:1px solid var(--line); color:var(--fg); border-radius:10px;
+  padding:9px 28px 9px 11px; font-size:13.5px; white-space:nowrap; flex:0 0 auto; cursor:pointer;
+}
+select.on{border-color:var(--acc);color:var(--acc)}
+select option{background:var(--bg2)}
+
+.chips{display:flex;gap:6px;margin-top:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.chips::-webkit-scrollbar{display:none}
+.chip{
+  flex:0 0 auto; padding:6px 11px; border-radius:999px; font-size:12.5px;
+  background:var(--card); border:1px solid var(--line); color:var(--dim);
+  cursor:pointer; user-select:none;
+}
+.chip.on{background:linear-gradient(135deg,var(--acc),var(--acc2));border-color:transparent;color:#fff;font-weight:600}
+
+/* ---------- toolbar ---------- */
+.tools{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 14px 0; font-size:12.5px; color:var(--dim);
+}
+.tools .grow{flex:1}
+.tools button{
+  background:var(--card);border:1px solid var(--line);color:var(--dim);
+  border-radius:9px;padding:6px 10px;font-size:12.5px;cursor:pointer
+}
+.tools button.on{border-color:var(--acc);color:var(--acc)}
+
+/* ---------- list ---------- */
+main{padding:10px 12px 0}
+.card{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+  margin-bottom:9px; overflow:hidden;
+}
+.card .top{padding:11px 13px 8px; display:flex; gap:9px; align-items:flex-start}
+.card .top .t{flex:1;min-width:0}
+.card .pname{font-weight:650; font-size:15.5px; line-height:1.25; letter-spacing:-.2px}
+.card .cats{font-size:11.5px;color:var(--dim2);margin-top:3px;display:flex;gap:7px;flex-wrap:wrap}
+.card .cats .c{background:var(--card2);padding:1px 7px;border-radius:6px}
+.card .best{
+  text-align:right;white-space:nowrap;flex:0 0 auto
+}
+.card .best .p{font-size:17px;font-weight:700;color:var(--ok);letter-spacing:-.4px}
+.card .best .l{font-size:10.5px;color:var(--dim2);margin-top:1px}
+
+.rows{border-top:1px solid var(--line)}
+.row{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 13px; border-top:1px solid var(--line);
+  font-size:14px;
+}
+.rows .row:first-child{border-top:0}
+.row .place{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .place .d{font-size:10.5px;color:var(--dim2);display:block;margin-top:1px}
+.row .val{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.row.cheapest{background:rgba(49,214,143,.07)}
+.row.cheapest .val{color:var(--ok)}
+.row.priciest .val{color:var(--bad)}
+.tag{
+  font-size:9.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;
+  padding:2px 6px;border-radius:5px;background:rgba(49,214,143,.16);color:var(--ok);margin-left:6px
+}
+.tag.exp{background:rgba(255,107,107,.15);color:var(--bad)}
+.spread{
+  padding:7px 13px;font-size:11.5px;color:var(--dim);
+  background:var(--card2);display:flex;gap:6px;align-items:center;flex-wrap:wrap
+}
+.spread b{color:var(--fg)}
+.empty{padding:40px 20px;text-align:center;color:var(--dim2);font-size:14px}
+.hist{margin-top:2px}
+.hist span{color:var(--dim2);font-size:10.5px}
+footer{
+  padding:20px 16px 30px;text-align:center;color:var(--dim2);font-size:11.5px;line-height:1.6
+}
+.stale{border-color:rgba(255,179,71,.35)}
+.bar{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--line);
+  padding:8px 14px;font-size:12px;color:var(--dim);text-align:center;transform:translateY(100%);transition:.2s}
+.bar.show{transform:none}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hrow">
+    <h1>🛒 Precios</h1>
+    <div class="sub" id="metaLine"></div>
+  </div>
+
+  <div class="search">
+    <span class="ico">🔎</span>
+    <input id="q" type="search" placeholder="Buscar producto… (ej: quesito, salchicha)" autocomplete="off" enterkeyhint="search">
+    <button class="clr" id="clr">✕</button>
+  </div>
+
+  <div class="filters">
+    <select id="fLugar"></select>
+    <select id="fCat"></select>
+    <select id="fFecha"></select>
+    <select id="fOrden">
+      <option value="az">Orden: A-Z</option>
+      <option value="precio-asc">Precio: menor a mayor</option>
+      <option value="precio-desc">Precio: mayor a menor</option>
+      <option value="dif">Mayor diferencia entre lugares</option>
+      <option value="reciente">Actualizado hace poco</option>
+    </select>
+  </div>
+
+  <div class="chips" id="quick"></div>
+</header>
+
+<div class="tools">
+  <span class="grow" id="countLine"></span>
+  <button id="bHist">Historial</button>
+  <button id="bCopy">Copiar lista</button>
+</div>
+
+<main id="out"></main>
+
+<footer>
+  Precios relevados a mano · <span id="fMeta"></span><br>
+  Los precios cambian; verificá en el local. Los ítems por kilo se muestran con <b>/kg</b>.
+</footer>
+
+<div class="bar" id="bar"></div>
+
+<script>
+const DATA = {"meta":{"generado":"2026-09-15","moneda":"ARS","total_registros":118,"total_productos":109,"total_lugares":7,"lugares":["Cuchemercado","Fiambrería Av. Castelli","Fritas","Gringo","Locas mayorista","Orgánicamente","Zorzón"],"categorias":["Almacén","Lácteos","Fiambres y carnes","Panadería","Congelados","Galletitas","Golosinas","Snacks","Frutos secos","Repostería","Frutas y verduras","Bebidas","Limpieza","Higiene y perfumería","Bazar y hogar"],"fechas":["2026-07-09","2026-07-10","2026-07-18","2026-08-04","2026-08-11","2026-08-13","2026-08-21","2026-09-08","2026-09-09","2026-09-10","2026-09-11"],"fecha_min":"2026-07-09","fecha_max":"2026-09-11"},"productos":[{"id":"7eb0a55b2d","nombre":"Aceite en aerosol Cañuelas","cat":"Almacén","precios":[{"lugar":"Cuchemercado","precio":3895,"fecha":"2026-09-09","unidad":"","nota":"","hist":[]}]},{"id":"c4bddd9259","nombre":"Aceitunas Don Nicanor 290gr","cat":"Almacén","precios":[{"lugar":"Zorzón","precio":1499,"fecha":"2026-08-11","unidad":"","nota":"","hist":[]}]},{"id":"db23f5b486","nombre":"Acondicionador Dove","cat":"Higiene y perfumería","precios":[{"lugar":"Cuchemercado","precio":5495,"fecha":"2026-09-09","unidad":"","nota":"","hist":[]}]},{"id":"7f455f5aba","nombre":"Aderezo cheddar","cat":"Almacén","precios":[{"lugar":"Fiambrería Av. Castelli","precio":4653.49,"fecha":"2026-08-13","unidad":"","nota":"","hist":[]}]},{"id":"4ec4e8fb93","nombre":"Aderezo de palta (guacamole)","cat":"Almacén","precios":[{"lugar":"Fiambrería Av. Castelli","precio":4419.81,"fecha":"2026-08-13","unidad":"","nota":"","hist":[]}]},{"id":"55e8254fc1","nombre":"Alfajor Goat negro","cat":"Golosinas","precios":[{"lugar":"Zorzón","precio":2310,"fecha":"2026-08-04","unidad":"","nota":"","hist":[]}]},{"id":"dfe11bc817","nombre":"Alfajor Las Colonias Triple","cat":"Golosinas","precios":[{"lugar":"Cuchemercado","precio":389.95,"fecha":"2026-09-09","unidad":"","nota":"","hist":[]}]},{"id":"9cc171fb99","nombre":"Alfajor Rasta maicena","cat":"Golosinas","precios":[{"lugar":"Zorzón","precio":2300,"fecha":"2026-08-04","unidad":"","nota":"","hist":[]}]},{"id":"5337aea131","nombre":"Almendras 100gr","cat":"Frutos secos","precios":[{"lugar":"Orgánicamente","precio":4630,"fecha":"2026-07-10","unidad":"","nota":"","hist":[]}]},{"id":"b3fc1c072d","nombre":"Avena 1kg","cat":"Almacén","precios":[{"lugar":"Orgánicamente","precio":3100,"fecha":"2026-07-10","unidad":"","nota":"","hist":[]}]},{"id":"6fc91f7b27","nombre":"Barbacoa Danica","cat":"Almacén","precios":[{"lugar":"Zorzón","precio":2069,"fecha":"2026-08-04","unidad":"","nota":"","hist":[]}]},{"id":"35565075a4","nombre":"Bicarbonato","cat":"Limpieza","precios":[{"lugar":"Cuchemercado","precio":595.95,"fecha":"2026-09-09","unidad":"","nota":"","hist":[]}]},{"id":"b2806fc8f6","nombre":"Bife de cerdo (kg)","cat":"Fiambres y carnes","precios":[{"lugar":"Zorzón","precio":10850,"fecha":"2026-08-11","unidad":"kg","nota":"","hist":[]}]},{"id":"c13ba8bca1","nombre":"Café La Virginia 500gr","cat":"Almacén","precios":[{"lugar":"Zorzón","precio":15900,"fecha":"2026-08-11","unidad":"","nota":"","hist":[{"precio":15900,"fecha":"2026-08-04"}]}]},{"id":"921aca5e53","nombre":"Carne molida especial","cat":"Fiambres y carnes","precios":[{"lugar":"Zorzón","precio":17655,"fecha":"2026-07-09","unidad":"","nota":"","hist":[]}]},{"id":"2b4c5ab3f9","nombre":"Carré de cerdo 170gr","cat":"Fiambres y carnes","precios":[{"lugar":"Fiambrería Av. Castelli","precio":3884.63,"fecha":"2026-08-13","unidad":"","nota":"","hist":[]}]},{"id":"b3b993605f","nombre":"Cebolla (kg)","cat":"Frutas y verduras","precios":[{"lugar":"Zorzón","precio":3899,"fecha":"2026-07-09","unidad":"kg","nota":"","hist":[]}]},{"id":"bb81e3473b","nombre":"Cesto de basura con pedal","cat":"Bazar y hogar","precios":[{"lugar":"Locas mayorista","precio":24500,"fecha":"2026-07-18","unidad":"","nota":"","hist":[]}]},{"id":"45b4de2917","nombre":"Champignones Caracas filet 400gr","cat":"Almacén","precios":[{"lugar":"Fiambrería Av. Castelli","precio":2866,"fecha":"2026-07-09","unidad":"","nota":"","hist":[]}]},{"id":"42db3c248e","nombre":"Chip de chocolate (kg)","cat":"Repostería","precios":[{"lugar":"Orgánicamente","precio":25100,"fecha":"2026-07-10","unidad":"kg","nota":"","hist":[]}]},{"id":"b46fb4a4b0","nombre":"Choclo cremoso Inalpa","cat":"Almacén","precios":[{"lugar":"Fiambrería Av. Castelli","precio":968,"fecha":"2026-07-09","unidad":"","nota":"","hist":[]}]},{"id":"f3acfe3ba4","nombre":"Choclo Marolio","cat":"Almacén","precios":[{"lugar":"Cuchemercado","precio":549,"fecha":"2026-09-09","unidad":"","nota":"","hist":[]}]},{"id":"b90f88d976","nombre":"Chuker 500cc","cat":"Almacén","precios":[{"lugar":"Cuchemercado","precio":2985,"fecha":"2026-09-09","unidad":"","nota":"","hist":[]}]},{"id":"048ad5c568","nombre":"Coca-Cola 2.25l","cat":"Bebidas","precios":[{"lugar":"Zorzón","precio":5000,"fecha":"2026-08-21","unidad":"","nota":"","hist":[]}]},{"id":"7b7361b5ee","nombre":"Colgate triple acción 90gr","cat":"Higiene y perfumería","precios":[{"lugar":"Cuchemercado","precio":3795,"fecha":"2026-09-09","unidad":"","nota":"","hist":[]}]},{"id":"fa380d5460","nombre":"Condimento para pizza","cat":"Almacén","precios":[{"lugar":"Fiambrería Av. Castelli","precio":1609.19,"fecha":"2026-08-13","unidad":"","nota":"","hist":[]}]},{"id":"17db23ccb8","nombre":"Corte americano (kg)","cat":"Fiambres y carnes","precios":[{"lugar":"Zorzón","precio":12500,"fecha":"2026-08-11","unidad":"kg","nota":"","hist":[]}]},{"id":"20b5ad7f10","nombre":"Cortina de baño","cat":"Bazar y hogar","precios":[{"lugar":"Locas mayorista","precio":7499,"fecha":"2026-07-18","unidad":"","nota":"","hist":[]}]},{"id":"555e056d02","nombre":"Cortinas","cat":"Bazar y hogar","precios":[{"lugar":"Locas mayorista","precio":19999,"fecha":"2026-07-18","unidad":"","nota":"","hist":[]}]},{"id":"7f75d8cfb3","nombre":"Cubetera con tapa","cat":"Bazar y hogar","precios":[{"lugar":"Locas mayorista","precio":2999,"fecha":"2026-07-18","unidad":"","nota":"","hist":[]}]},{"id":"f684df638c","nombre":"Cucharón Carol","cat":"Bazar y hogar","precios":[{"lugar":"Locas mayorista","precio":999,"fecha":"2026-07-18","unidad":"","nota":"","hist":[]}]},{"id":"924b32fb14","nombre":"Disco empanadas Don Yeyo","cat":"Congelados","precios":[{"lugar":"Fiambrería Av. Castelli","precio":2238.49,"fecha":"2026-08-13","unidad":"","nota":"","hist":[]}]},{"id":"3861d425ac","nombre":"Dulce de leche Milkaut 245gr","cat":"Lácteos","precios":[{"lugar":"Fiambrería Av. Castelli","precio":2491.79,"fecha":"2026-08-13","unidad":"","nota":"","hist":[]}]},{"id":"4964ef70be","nombre":"Dulce de leche Santa Lucía 200gr","cat":"Lácteos","precios":[{"lugar":"Cuchemercado","precio":959.95,"fecha":"2026-09-09","unidad":"","nota":"","hist":[]}]},{"id":"9c31270940","nombre":"Empanadas Adolfina","cat":"Congelados","precios":[{"lugar":"Zorzón","precio":1070,"fecha":"2026-07-09","unidad":"","nota":"","hist":[]}]},{"id":"24d9625978","nombre":"Empanadas Don Yeyo","cat":"Congelados","precios":[{"lugar":"Fiambrería Av. Castelli","precio":1285.66,"fecha":"2026-07-09","unidad":"","nota":"","hist":[]}]},{"id":"3d0b3dd6b0","nombre":"Escarbadientes","cat":"Bazar y hogar","precios":[{"lugar":"Zorzón","precio":570,"fecha":"2026-08-04","unidad":"","nota":"","hist":[]}]},{"id":"2b18cd36e5","nombre":"Fécula de mandioca Montecarlos","cat":"Almacén","precios":[{"lugar":"Fiambrería Av. Castelli","precio":3481.99,"fecha":"2026-08-13","unidad":"","nota":"","hist":[{"precio":3482,"fecha":"2026-07-09"}]}]},{"id":"4d36cc3a68","nombre":"Fernet","cat":"Bebidas","precios":[{"lugar":"Zorzón","precio":18600,"fecha":"2026-08-21","unidad":"","nota":"","hist":[]}]},{"id":"cc7f2eb5b3","nombre":"Fideo espagueti La Providencia","cat":"Almacén","precios":[{"lugar":"Fiambrería Av. Castelli","precio":1040,"fecha":"2026-08-13","unidad":"","nota":"","hist":[]}]},{"id":"9d9b66e0b4","nombre":"Fideo Santa Isabel tallarín","cat":"Almacén","precios":[{"lugar":"Cuchemercado","precio":749.95,"fecha":"2026-09-09","unidad":"","nota":"","hist":[]}]},{"id":"3d7ad27044","nombre":"Fideo Terrabusi dedalitos","cat":"Almacén","precios":[{"lugar":"Cuchemercado","precio":895,"fecha":"2026-09-09","unidad":"","nota":"","hist":[]}]},{"id":"e8119372e3","nombre":"Fideo Tirabuzón Canale","cat":"Almacén","precios":[{"lugar":"Cuchemercado","precio":739.95,"fecha":"2026-09-09","unidad":"","nota":"","hist":[]}]},{"id":"a047ec7af9","nombre":"Fritolín (aceite en aerosol)","cat":"Almacén","precios":[{"lugar":"Zorzón","precio":4750,"fecha":"2026-09-08","unidad":"","nota":"","hist":[]}]},{"id":"08e1f96fdb","nombre":"Galletitas 9 de Oro clásico","cat":"Galletitas","precios":[{"lugar":"Fiambrería Av. Castelli","precio":1262,"fecha":"2026-07-09","unidad":"","nota":"","hist":[]}]},{"id":"d9b5a791c4","nombre":"Galletitas Gaona obleas 100gr","cat":"Galletitas","precios":[{"lugar":"Cuchemercado","precio":695.95,"fecha":"2026-09-09","unidad":"","nota":"","hist":[]}]},{"id":"b1d67d55bd","nombre":"Galletitas Gaona pepas 180gr","cat":"Galletitas","precios":[{"lugar":"Cuchemercado","precio":795.95,"fecha":"2026-09-09","unidad":"","nota":"","hist":[]}]},{"id":"83473f7f6c","nombre":"Galletitas Gaona pepas 300gr","cat":"Galletitas","precios":[{"lugar":"Cuchemercado","precio":1295,"fecha":"2026-09-09","unidad":"","nota":"","hist":[]}]},{"id":"e46cdceb82","nombre":"Grisines finas hierbas","cat":"Almacén","precios":[{"lugar":"Orgánicamente","precio":2200,"fecha":"2026-07-10","unidad":"","nota":"","hist":[]}]},{"id":"d151b8d867","nombre":"Guantes El Coloso","cat":"Limpieza","precios":[{"lugar":"Cuchemercado","precio":2395,"fecha":"2026-09-09","unidad":"","nota":"","hist":[]}]},{"id":"9857c72fb8","nombre":"Hamburguesa Friar 2x110gr","cat":"Congelados","precios":[{"lugar":"Cuchemercado","precio":3895,"fecha":"2026-09-09","unidad":"","nota":"","hist":[]}]},{"id":"6063d7535c","nombre":"Hamburguesa Funburgers Paladini","cat":"Congelados","precios":[{"lugar":"Zorzón","precio":2399,"fecha":"2026-08-04","unidad":"","nota":"","hist":[]}]},{"id":"6795a8068a","nombre":"Hamburguesa Paladini grande","cat":"Congelados","precios":[{"lugar":"Fiambrería Av. Castelli","precio":4557.8,"fecha":"2026-08-13","unidad":"","nota":"","hist":[]}]},{"id":"8246308aef","nombre":"Harina 000 Cañuelas","cat":"Almacén","precios":[{"lugar":"Cuchemercado","precio":859.95,"fecha":"2026-09-09","unidad":"","nota":"","hist":[]}]},{"id":"446d013872","nombre":"Harina Pureza integral","cat":"Almacén","precios":[{"lugar":"Fiambrería Av. Castelli","precio":1592.42,"fecha":"2026-07-09","unidad":"","nota":"","hist":[]}]},{"id":"c381058d8d","nombre":"Harpic removedor de sarro","cat":"Limpieza","precios":[{"lugar":"Cuchemercado","precio":3795,"fecha":"2026-09-09","unidad":"","nota":"","hist":[]}]},{"id":"dd31c5d555","nombre":"Hellmanns pesto","cat":"Almacén","precios":[{"lugar":"Cuchemercado","precio":2395,"fecha":"2026-09-09","unidad":"","nota":"","hist":[]}]},{"id":"d36b628fd2","nombre":"Hermético 14L","cat":"Bazar y hogar","precios":[{"lugar":"Locas mayorista","precio":6500,"fecha":"2026-07-18","unidad":"","nota":"","hist":[]}]},{"id":"c3e10c3617","nombre":"Huevo Kinder","cat":"Golosinas","precios":[{"lugar":"Zorzón","precio":3630,"fecha":"2026-08-21","unidad":"","nota":"","hist":[{"precio":3630,"fecha":"2026-07-09"}]}]},{"id":"cbbab68121","nombre":"Jamón cocido Piamontesa","cat":"Fiambres y carnes","precios":[{"lugar":"Fiambrería Av. Castelli","precio":13648.23,"fecha":"2026-08-13","unidad":"","nota":"","hist":[]}]},{"id":"1a10d4ad65","nombre":"Lavandina 1l","cat":"Limpieza","precios":[{"lugar":"Cuchemercado","precio":939.95,"fecha":"2026-09-09","unidad":"","nota":"","hist":[]}]},{"id":"2096f46347","nombre":"Leche en polvo Purísima 800gr","cat":"Lácteos","precios":[{"lugar":"Zorzón","precio":10500,"fecha":"2026-08-11","unidad":"","nota":"","hist":[]}]},{"id":"59a7413df7","nombre":"Levadura 100gr","cat":"Almacén","precios":[{"lugar":"Fiambrería Av. Castelli","precio":770,"fecha":"2026-07-09","unidad":"","nota":"","hist":[]}]},{"id":"29004f67a2","nombre":"Maíz pisingallo Prieto","cat":"Almacén","precios":[{"lugar":"Fiambrería Av. Castelli","precio":873.45,"fecha":"2026-08-13","unidad":"","nota":"","hist":[]}]},{"id":"73e5507d98","nombre":"Maní King 100gr","cat":"Snacks","precios":[{"lugar":"Gringo","precio":1100,"fecha":"2026-09-10","unidad":"","nota":"","hist":[]}]},{"id":"0c2bd55d14","nombre":"Maní pelado 100gr","cat":"Snacks","precios":[{"lugar":"Fritas","precio":1000,"fecha":"2026-09-11","unidad":"","nota":"","hist":[]}]},{"id":"281a7274e6","nombre":"Manteca Serenísima 100gr","cat":"Lácteos","precios":[{"lugar":"Fiambrería Av. Castelli","precio":1739,"fecha":"2026-07-09","unidad":"","nota":"","hist":[]}]},{"id":"fee751b018","nombre":"Manteca Tonadita 100gr","cat":"Lácteos","precios":[{"lugar":"Fiambrería Av. Castelli","precio":1546.75,"fecha":"2026-08-13","unidad":"","nota":"","hist":[]}]},{"id":"6b757ab5b6","nombre":"Mayonesa Livian ajo","cat":"Almacén","precios":[{"lugar":"Zorzón","precio":2420,"fecha":"2026-08-04","unidad":"","nota":"","hist":[]}]},{"id":"d687051afe","nombre":"Medallón espinaca y queso","cat":"Congelados","precios":[{"lugar":"Fiambrería Av. Castelli","precio":2616,"fecha":"2026-07-09","unidad":"","nota":"","hist":[]}]},{"id":"e472a2f2a2","nombre":"Medallón Paladini pollo","cat":"Congelados","precios":[{"lugar":"Fiambrería Av. Castelli","precio":2188,"fecha":"2026-07-09","unidad":"","nota":"","hist":[]}]},{"id":"b2dfff92a7","nombre":"Milanesa de cerdo (kg)","cat":"Fiambres y carnes","precios":[{"lugar":"Zorzón","precio":9900,"fecha":"2026-08-04","unidad":"kg","nota":"","hist":[]}]},{"id":"38878a04c5","nombre":"Mix de semillas (kg)","cat":"Frutos secos","precios":[{"lugar":"Orgánicamente","precio":6400,"fecha":"2026-07-10","unidad":"kg","nota":"","hist":[]}]},{"id":"10d0269675","nombre":"Mopas + dispenser","cat":"Limpieza","precios":[{"lugar":"Locas mayorista","precio":14999,"fecha":"2026-07-18","unidad":"","nota":"","hist":[]}]},{"id":"50a28bea57","nombre":"Morcilla Paladini x3u","cat":"Fiambres y carnes","precios":[{"lugar":"Zorzón","precio":3937.5,"fecha":"2026-08-11","unidad":"","nota":"","hist":[{"precio":3875,"fecha":"2026-08-04"}]}]},{"id":"e1af395da8","nombre":"Naranjas (4u)","cat":"Frutas y verduras","precios":[{"lugar":"Zorzón","precio":1754,"fecha":"2026-07-09","unidad":"","nota":"","hist":[]}]},{"id":"5feea621e0","nombre":"Orégano 25gr","cat":"Almacén","precios":[{"lugar":"Fiambrería Av. Castelli","precio":1260,"fecha":"2026-07-09","unidad":"","nota":"","hist":[]}]},{"id":"a1b026384d","nombre":"Pan de miga","cat":"Panadería","precios":[{"lugar":"Fiambrería Av. Castelli","precio":2595.48,"fecha":"2026-07-09","unidad":"","nota":"","hist":[]}]},{"id":"3c6a189374","nombre":"Pan hamburguesa Don Yeyo 4u","cat":"Panadería","precios":[{"lugar":"Fiambrería Av. Castelli","precio":2340,"fecha":"2026-08-13","unidad":"","nota":"","hist":[]}]},{"id":"7dac787f26","nombre":"Pan hamburguesa Veneziana","cat":"Panadería","precios":[{"lugar":"Zorzón","precio":2150,"fecha":"2026-08-04","unidad":"","nota":"","hist":[]}]},{"id":"87ec608eb5","nombre":"Pan integral Veneziana 600gr","cat":"Panadería","precios":[{"lugar":"Fiambrería Av. Castelli","precio":4263.48,"fecha":"2026-07-09","unidad":"","nota":"","hist":[]}]},{"id":"b3113f53a1","nombre":"Pan lactal salvado La Reina","cat":"Panadería","precios":[{"lugar":"Fiambrería Av. Castelli","precio":1569.49,"fecha":"2026-08-13","unidad":"","nota":"","hist":[]}]},{"id":"b3a9a336a6","nombre":"Pan viena La Reina","cat":"Panadería","precios":[{"lugar":"Fiambrería Av. Castelli","precio":1004.15,"fecha":"2026-08-13","unidad":"","nota":"","hist":[]}]},{"id":"d77cc55d7d","nombre":"Papas fritas 100gr","cat":"Snacks","precios":[{"lugar":"Fritas","precio":3000,"fecha":"2026-09-11","unidad":"","nota":"","hist":[]}]},{"id":"6b38f81c0b","nombre":"Pascualina Don Yeyo","cat":"Congelados","precios":[{"lugar":"Fiambrería Av. Castelli","precio":2340,"fecha":"2026-07-09","unidad":"","nota":"","hist":[]}]},{"id":"8623c44b8a","nombre":"Pizzeta Paladini","cat":"Congelados","precios":[{"lugar":"Fiambrería Av. Castelli","precio":3088,"fecha":"2026-07-09","unidad":"","nota":"","hist":[]}]},{"id":"c1b0288076","nombre":"Platos Durax","cat":"Bazar y hogar","precios":[{"lugar":"Locas mayorista","precio":750,"fecha":"2026-07-18","unidad":"","nota":"","hist":[]}]},{"id":"861095dd40","nombre":"Pulpa de cerdo (kg)","cat":"Fiambres y carnes","precios":[{"lugar":"Zorzón","precio":10200,"fecha":"2026-08-11","unidad":"kg","nota":"","hist":[{"precio":9900,"fecha":"2026-08-04"}]}]},{"id":"d7652834fb","nombre":"Puré de papas Knorr","cat":"Almacén","precios":[{"lugar":"Zorzón","precio":2700,"fecha":"2026-08-04","unidad":"","nota":"","hist":[]}]},{"id":"a26209c91b","nombre":"Queso crema Cremón light 280gr","cat":"Lácteos","precios":[{"lugar":"Fiambrería Av. Castelli","precio":3481.42,"fecha":"2026-08-13","unidad":"","nota":"","hist":[{"precio":3481.42,"fecha":"2026-07-09"}]}]},{"id":"7fe17849c2","nombre":"Queso cremoso Cremigal por salut light","cat":"Lácteos","precios":[{"lugar":"Cuchemercado","precio":8595,"fecha":"2026-09-09","unidad":"","nota":"","hist":[]}]},{"id":"9991299ffd","nombre":"Queso cremoso Noalsa magro (kg)","cat":"Lácteos","precios":[{"lugar":"Fiambrería Av. Castelli","precio":8117.98,"fecha":"2026-08-13","unidad":"kg","nota":"","hist":[]}]},{"id":"46de5c8e4c","nombre":"Queso rallado Serenísima 35gr","cat":"Lácteos","precios":[{"lugar":"Fiambrería Av. Castelli","precio":1707.71,"fecha":"2026-07-09","unidad":"","nota":"","hist":[]}]},{"id":"8b74a6ca6f","nombre":"Rapidita Bimbo","cat":"Panadería","precios":[{"lugar":"Cuchemercado","precio":1795,"fecha":"2026-09-09","unidad":"","nota":"","hist":[]},{"lugar":"Fiambrería Av. Castelli","precio":1862.19,"fecha":"2026-08-13","unidad":"","nota":"","hist":[{"precio":1862.19,"fecha":"2026-07-09"}]}]},{"id":"c30233f681","nombre":"Rayador con contenedor","cat":"Bazar y hogar","precios":[{"lugar":"Locas mayorista","precio":5500,"fecha":"2026-07-18","unidad":"","nota":"","hist":[]}]},{"id":"3978cc929a","nombre":"Ricotta Tregar 299gr","cat":"Lácteos","precios":[{"lugar":"Zorzón","precio":4699,"fecha":"2026-09-08","unidad":"","nota":"","hist":[]}]},{"id":"966a684ce1","nombre":"Salame Paladini","cat":"Fiambres y carnes","precios":[{"lugar":"Zorzón","precio":5157,"fecha":"2026-07-09","unidad":"","nota":"","hist":[]}]},{"id":"262dca99dc","nombre":"Salchichas Friar","cat":"Fiambres y carnes","precios":[{"lugar":"Fiambrería Av. Castelli","precio":1520.68,"fecha":"2026-07-09","unidad":"","nota":"","hist":[]}]},{"id":"237349705a","nombre":"Salchichas Paladini","cat":"Fiambres y carnes","precios":[{"lugar":"Fiambrería Av. Castelli","precio":2559.33,"fecha":"2026-08-13","unidad":"","nota":"","hist":[{"precio":2565.75,"fecha":"2026-07-09"}]}]},{"id":"3e59b97eb0","nombre":"Salsa de palta","cat":"Almacén","precios":[{"lugar":"Fiambrería Av. Castelli","precio":4064,"fecha":"2026-07-09","unidad":"","nota":"","hist":[]}]},{"id":"531f06efdb","nombre":"Shampoo Algabo 350ml","cat":"Higiene y perfumería","precios":[{"lugar":"Cuchemercado","precio":2895,"fecha":"2026-09-09","unidad":"","nota":"","hist":[]}]},{"id":"6429ef853a","nombre":"Shampoo Dove","cat":"Higiene y perfumería","precios":[{"lugar":"Cuchemercado","precio":5495,"fecha":"2026-09-09","unidad":"","nota":"","hist":[]}]},{"id":"acd578d999","nombre":"Sopa Knorr taza","cat":"Almacén","precios":[{"lugar":"Fiambrería Av. Castelli","precio":2800,"fecha":"2026-07-09","unidad":"","nota":"","hist":[]}]},{"id":"d18b176cf6","nombre":"Sprite 1.5l","cat":"Bebidas","precios":[{"lugar":"Zorzón","precio":3800,"fecha":"2026-07-09","unidad":"","nota":"","hist":[]}]},{"id":"ba7a3b282a","nombre":"Suprema de pollo (kg)","cat":"Fiambres y carnes","precios":[{"lugar":"Zorzón","precio":9999,"fecha":"2026-08-11","unidad":"kg","nota":"","hist":[]}]},{"id":"a2b7da1427","nombre":"Tomate (kg)","cat":"Frutas y verduras","precios":[{"lugar":"Zorzón","precio":2049,"fecha":"2026-07-09","unidad":"kg","nota":"","hist":[]}]},{"id":"717a30b69d","nombre":"Vino Chacabuco","cat":"Bebidas","precios":[{"lugar":"Cuchemercado","precio":2195,"fecha":"2026-09-09","unidad":"","nota":"","hist":[]}]},{"id":"2355fd3253","nombre":"Vino Estancia Mendoza","cat":"Bebidas","precios":[{"lugar":"Zorzón","precio":2999,"fecha":"2026-07-09","unidad":"","nota":"","hist":[]}]},{"id":"2de82fa4bd","nombre":"Zanahoria (kg)","cat":"Frutas y verduras","precios":[{"lugar":"Zorzón","precio":2850,"fecha":"2026-07-09","unidad":"kg","nota":"","hist":[]}]}]};
+const CAT_EMOJI = {
+  "Almacén":"🥫","Lácteos":"🧀","Fiambres y carnes":"🥓","Panadería":"🥖","Congelados":"🧊",
+  "Galletitas":"🍪","Golosinas":"🍬","Snacks":"🍟","Frutos secos":"🌰","Repostería":"🧁",
+  "Frutas y verduras":"🥬","Bebidas":"🥤","Limpieza":"🧽","Higiene y perfumería":"🧴","Bazar y hogar":"🏠"
+};
+const ARS = new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtM = n => ARS.format(Math.round(n));
+const fmtF = iso => iso ? iso.slice(8,10)+"/"+iso.slice(5,7)+"/"+iso.slice(2,4) : "";
+const norm = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+
+const S = {q:"", lugar:"", cat:"", fecha:"", orden:"az", hist:false};
+
+function options(sel, arr, label, keep){
+  sel.innerHTML = `<option value="">${label}</option>` + arr.map(v=>`<option value="${v}">${v}</option>`).join("");
+  if(keep && arr.includes(keep)) sel.value = keep;
+}
+
+function buildQuick(){
+  const q = document.getElementById("quick");
+  const quick = [
+    ["🥬 Verduras","cat:Frutas y verduras"],
+    ["🥩 Carne","cat:Fiambres y carnes"],
+    ["🧀 Lácteos","cat:Lácteos"],
+    ["🥖 Panadería","cat:Panadería"],
+    ["🧊 Congelados","cat:Congelados"],
+    ["🧽 Limpieza","cat:Limpieza"],
+  ];
+  q.innerHTML = quick.map(([t,v])=>`<div class="chip" data-v="${v}">${t}</div>`).join("");
+  q.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{
+    const [k,val]=c.dataset.v.split(":");
+    const on = c.classList.contains("on");
+    q.querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));
+    if(k==="cat"){ S.cat = on ? "" : val; document.getElementById("fCat").value=S.cat; }
+    if(k==="lugar"){ S.lugar = on ? "" : val; document.getElementById("fLugar").value=S.lugar; }
+    render();
+  });
+}
+
+function priceOf(p){
+  // precio relevante segun filtro de lugar (o el mas barato)
+  if(S.lugar){
+    const r = p.precios.find(x=>x.lugar===S.lugar);
+    return r ? r.precio : null;
+  }
+  return p.precios[0].precio;
+}
+
+function match(p){
+  if(S.cat && p.cat!==S.cat) return false;
+  if(S.lugar && !p.precios.some(x=>x.lugar===S.lugar)) return false;
+  if(S.fecha && !p.precios.some(x=>x.fecha>=S.fecha)) return false;
+  if(S.q){
+    const hay = norm(p.nombre+" "+p.cat+" "+p.precios.map(x=>x.lugar).join(" "));
+    const terms = norm(S.q).split(/\s+/).filter(Boolean);
+    if(!terms.every(t=>hay.includes(t))) return false;
+  }
+  return true;
+}
+
+function render(){
+  const out = document.getElementById("out");
+  let items = DATA.productos.filter(match);
+
+  if(S.fecha){
+    items = items.map(p=>{
+      const vis = p.precios.filter(x=>x.fecha>=S.fecha);
+      return vis.length ? {...p, precios: vis} : null;
+    }).filter(Boolean);
+  }
+
+  const withP = items.map(p=>({p, v: priceOf(p)}));
+  const ord = {
+    "az": (a,b)=> a.p.nombre.localeCompare(b.p.nombre,"es"),
+    "precio-asc": (a,b)=> (a.v??9e9)-(b.v??9e9),
+    "precio-desc": (a,b)=> (b.v??-1)-(a.v??-1),
+    "dif": (a,b)=>{
+      const d=x=>x.p.precios.length>1 ? 1-(x.p.precios[0].precio/x.p.precios[x.p.precios.length-1].precio) : -1;
+      return d(b)-d(a);
+    },
+    "reciente": (a,b)=>{
+      const d=x=>x.p.precios.reduce((m,r)=>r.fecha>m?r.fecha:m,"");
+      return d(b).localeCompare(d(a));
+    }
+  }[S.orden];
+  withP.sort(ord);
+
+  document.getElementById("countLine").textContent =
+    `${withP.length} producto${withP.length===1?"":"s"}` + (S.lugar ? ` en ${S.lugar}` : "") + (S.cat ? ` · ${S.cat}` : "");
+
+  if(!withP.length){
+    out.innerHTML = `<div class="empty">Nada con esos filtros 🤷<br><span style="font-size:12px">Probá borrar la búsqueda o cambiar el lugar.</span></div>`;
+    return;
+  }
+
+  out.innerHTML = withP.map(({p})=>{
+    const ps = p.precios;
+    const min = ps[0].precio, max = ps[ps.length-1].precio;
+    const best = ps[0];
+    const dif = max-min;
+    const pct = min>0 ? (dif/min*100) : 0;
+    const em = CAT_EMOJI[p.cat]||"📦";
+
+    const rows = ps.map((r,i)=>{
+      let cls = "";
+      if(ps.length>1){ if(i===0) cls="cheapest"; else if(i===ps.length-1) cls="priciest"; }
+      const tags = [];
+      if(ps.length>1 && i===0) tags.push(`<span class="tag">más barato</span>`);
+      if(ps.length>1 && i===ps.length-1 && dif>0) tags.push(`<span class="tag exp">+${fmtM(dif)}</span>`);
+      let hist = "";
+      if(S.hist && r.hist && r.hist.length){
+        hist = `<span class="hist"><span>` + r.hist.map(h=>`${fmtM(h.precio)} (${fmtF(h.fecha)})`).join(" → ") + `</span></span>`;
+      }
+      const stale = (DATA.meta.fecha_max && r.fecha < DATA.meta.fecha_max) ? " stale" : "";
+      return `<div class="row ${cls}">
+        <div class="place">${r.lugar}${tags.join("")}
+          <span class="d">${fmtF(r.fecha)}${r.nota?" · "+r.nota:""}</span>${hist}
+        </div>
+        <div class="val">${fmtM(r.precio)}${r.unidad==="kg"?`<span style="font-size:10.5px;color:var(--dim2);font-weight:400"> /kg</span>`:""}</div>
+      </div>`;
+    }).join("");
+
+    let spread = "";
+    if(ps.length>1 && dif>0){
+      spread = `<div class="spread">💡 Ahorrás <b>${fmtM(dif)}</b> (${pct.toFixed(0)}%) comprando en <b>${best.lugar}</b></div>`;
+    }
+    const bestBlock = ps.length>1
+      ? `<div class="best"><div class="p">${fmtM(min)}</div><div class="l">mejor precio</div></div>`
+      : "";
+
+    return `<div class="card${ps.length===1&&ps[0].fecha<DATA.meta.fecha_max?" stale":""}">
+      <div class="top">
+        <div class="t">
+          <div class="pname">${p.nombre}</div>
+          <div class="cats"><span class="c">${em} ${p.cat}</span>${ps.length>1?`<span class="c">${ps.length} lugares</span>`:""}</div>
+        </div>
+        ${bestBlock}
+      </div>
+      <div class="rows">${rows}</div>
+      ${spread}
+    </div>`;
+  }).join("");
+}
+
+function toast(t){
+  const b=document.getElementById("bar"); b.textContent=t; b.classList.add("show");
+  clearTimeout(b._t); b._t=setTimeout(()=>b.classList.remove("show"),1800);
+}
+
+function init(){
+  const m = DATA.meta;
+  document.getElementById("metaLine").innerHTML =
+    `${m.total_productos} productos · ${m.total_lugares} lugares<br>datos ${fmtF(m.fecha_min)} → ${fmtF(m.fecha_max)}`;
+  document.getElementById("fMeta").textContent = `${m.total_registros} precios cargados`;
+
+  options(document.getElementById("fLugar"), m.lugares, "Todos los lugares");
+  options(document.getElementById("fCat"), m.categorias, "Todas las categorías");
+
+  const fF = document.getElementById("fFecha");
+  fF.innerHTML = `<option value="">Cualquier fecha</option>` +
+    m.fechas.slice().reverse().map(f=>`<option value="${f}">desde ${fmtF(f)}</option>`).join("");
+
+  const bind = (id,key)=> document.getElementById(id).onchange = e=>{
+    S[key]=e.target.value; e.target.classList.toggle("on", !!e.target.value); render();
+  };
+  bind("fLugar","lugar"); bind("fCat","cat"); bind("fFecha","fecha"); bind("fOrden","orden");
+  document.getElementById("fOrden").value="az";
+
+  const q = document.getElementById("q");
+  q.oninput = ()=>{ S.q=q.value; document.getElementById("clr").style.display = q.value?"block":"none"; render(); };
+  document.getElementById("clr").onclick = ()=>{ q.value=""; S.q=""; document.getElementById("clr").style.display="none"; q.focus(); render(); };
+
+  document.getElementById("bHist").onclick = e=>{
+    S.hist=!S.hist; e.target.classList.toggle("on",S.hist);
+    toast(S.hist?"Mostrando historial de precios":"Historial oculto"); render();
+  };
+  document.getElementById("bCopy").onclick = ()=>{
+    const items = DATA.productos.filter(match);
+    const txt = items.map(p=>{
+      const r = S.lugar ? p.precios.filter(x=>x.lugar===S.lugar) : p.precios;
+      if(!r.length) return null;
+      return p.nombre+"\n"+r.map(x=>"  - "+x.lugar+": "+fmtM(x.precio)+" ("+fmtF(x.fecha)+")").join("\n");
+    }).filter(Boolean).join("\n");
+    navigator.clipboard.writeText(txt).then(()=>toast("Lista copiada ✅"),()=>toast("No se pudo copiar"));
+  };
+
+  buildQuick();
+  render();
+}
+
+init();
+</script>
+</body>
+</html>
