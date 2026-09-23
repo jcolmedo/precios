@@ -67,6 +67,8 @@ select option{background:var(--bg2)}
 .chip.on{background:linear-gradient(135deg,var(--acc),var(--acc2));border-color:transparent;color:#fff;font-weight:600}
 .chip.of.on{background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff}
 .tag.of{background:rgba(245,158,11,.16);color:#fbbf24;border-color:rgba(245,158,11,.4);font-weight:600}
+.tools button.of{border-color:rgba(245,158,11,.45);color:#fbbf24}
+.tools button.of.on{background:linear-gradient(135deg,#f59e0b,#ef4444);border-color:transparent;color:#fff;font-weight:600}
 
 /* ---------- toolbar ---------- */
 .tools{
@@ -164,6 +166,7 @@ footer{
 
 <div class="tools">
   <span class="grow" id="countLine"></span>
+  <button id="bOf" class="of">🔎 Ofertas</button>
   <button id="bHist">Historial</button>
   <button id="bCopy">Copiar lista</button>
 </div>
@@ -192,6 +195,7 @@ const unitLabel = u => u ? (UNIT[u] || " /" + u) : "";
 const norm = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 
 const S = {q:"", lugar:"", cat:"", fecha:"", orden:"az", hist:false, oferta:false};
+const N_OF = DATA.productos.filter(p=>p.oferta).length;   // cuantos productos en oferta
 
 function options(sel, arr, label, keep){
   sel.innerHTML = `<option value="">${label}</option>` + arr.map(v=>`<option value="${v}">${v}</option>`).join("");
@@ -272,6 +276,9 @@ function render(){
 
   document.getElementById("countLine").textContent =
     `${withP.length} producto${withP.length===1?"":"s"}` + (S.lugar ? ` en ${S.lugar}` : "") + (S.cat ? ` · ${S.cat}` : "") + (S.oferta ? " · 🔥 solo ofertas" : "");
+
+  const bOf = document.getElementById("bOf");
+  if(bOf){ bOf.textContent = `🔥 Ofertas${N_OF?" ("+N_OF+")":""}`; bOf.classList.toggle("on", S.oferta); }
 
   if(!withP.length){
     out.innerHTML = `<div class="empty">Nada con esos filtros 🤷<br><span style="font-size:12px">Probá borrar la búsqueda o cambiar el lugar.</span></div>`;
@@ -356,6 +363,13 @@ function init(){
   q.oninput = ()=>{ S.q=q.value; document.getElementById("clr").style.display = q.value?"block":"none"; render(); };
   document.getElementById("clr").onclick = ()=>{ q.value=""; S.q=""; document.getElementById("clr").style.display="none"; q.focus(); render(); };
 
+  document.getElementById("bOf").onclick = ()=>{
+    S.oferta = !S.oferta;
+    toast(S.oferta
+      ? (N_OF ? `Mostrando ${N_OF} producto${N_OF===1?"":"s"} en oferta 🔥` : "No hay ofertas cargadas todavía")
+      : "Mostrando todo");
+    render();
+  };
   document.getElementById("bHist").onclick = e=>{
     S.hist=!S.hist; e.target.classList.toggle("on",S.hist);
     toast(S.hist?"Mostrando historial de precios":"Historial oculto"); render();
